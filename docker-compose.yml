@@ -1,0 +1,40 @@
+version: '3'
+services:
+  live:
+    image: reg.do.co.th/nf/mongo_logger:${LIVE_VERSION}
+    ports:
+      - "9898:8000" ### Default
+    environment:
+      - MODULE_NAME=main
+      - VARIABLE_NAME=value
+      - LOG_LEVEL=debug # Set logging level to debug
+    volumes:
+      - ./app:/app:ro
+      - .config_live.env:/app/.config.env:ro
+    networks:
+      - internal
+
+  mdb:
+    image: mongo:5.0
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mp
+      MONGO_INITDB_ROOT_PASSWORD: majinsblabla
+    ports:
+      - 27017:27017
+    volumes:
+      - mdb:/data/db
+    networks:
+      - internal
+
+volumes:
+  logs:
+  mdb:
+
+
+networks:
+  internal:

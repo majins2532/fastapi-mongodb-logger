@@ -1,0 +1,13 @@
+fastapi
+uvicorn[standard]
+pyjwt
+requests
+PyYAML>=6.0
+colorama
+pydantic[email]
+pymongo
+python-jose[cryptography]
+passlib[bcrypt]
+python-multipart
+pandas
+openpyxl

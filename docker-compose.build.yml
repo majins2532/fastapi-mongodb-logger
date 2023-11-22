@@ -1,0 +1,7 @@
+version: '3'
+services:
+  live:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    image: reg.do.co.th/nf/mongo_logger:${LIVE_VERSION}

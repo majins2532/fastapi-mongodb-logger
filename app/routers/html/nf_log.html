@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Logger API MP</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <style>
+        /* Add your custom styles here */
+        /* For example: */
+        .table-container {
+            margin: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Loading Modal -->
+    <div class="modal" id="loadingModal" tabindex="-1" role="dialog" aria-labelledby="loadingModalLabel"
+        aria-hidden="true" data-backdrop="static" data-keyboard="false">
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-body text-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                    <p>Loading...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">User Details</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>ID:</strong> <span id="Id"></span></p>
+                    <p><strong>Message:</strong> <span id="message"></span></p>
+                    <p><strong>Details:</strong> <textarea class="form-control" id="details"></textarea></p>
+                    <!-- Add more details if needed -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="row mx-md-n5 p-3">
+            <div class="input-group input-group-sm col-4">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="inputGroup-sizing-sm">Database</span>
+                </div>
+                <input type="text" id="Database_id" class="form-control" aria-label="Sizing example input"
+                    aria-describedby="inputGroup-sizing-sm" disabled>
+            </div>
+            <div class="input-group input-group-sm col-4">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="inputGroup-sizing-sm">Message</span>
+                </div>
+                <input type="text" id="searchMessage" class="form-control" aria-label="Sizing example input"
+                    aria-describedby="inputGroup-sizing-sm">
+            </div>
+            <div class="input-group input-group-sm col-4">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="inputGroup-sizing-sm">Details</span>
+                </div>
+                <input type="text" id="searchDetails" class="form-control" aria-label="Sizing example input"
+                    aria-describedby="inputGroup-sizing-sm">
+            </div>
+            <div class="input-group input-group-sm col-4">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="inputGroup-sizing-sm">Date From</span>
+                </div>
+                <input type="date" id="searchDateFrom" class="form-control" aria-label="Sizing example input"
+                    aria-describedby="inputGroup-sizing-sm">
+            </div>
+            <div class="input-group input-group-sm col-4">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="inputGroup-sizing-sm">Date To</span>
+                </div>
+                <input type="date" id="searchDateTo" class="form-control" aria-label="Sizing example input"
+                    aria-describedby="inputGroup-sizing-sm">
+            </div>
+        </div>
+        <button type="button" class="btn btn-outline-primary btn-sm" data-toggle="modal" data-target="#loadingModal"
+            onclick="changeURL()">Search</button>
+        <button type="button" class="btn btn-outline-primary btn-sm" onclick="export_excel()">
+            Export Excel
+        </button>
+        <button type="button" class="btn btn-outline-primary btn-sm" onclick="backhome()">Back Dashborad</button>
+        <div class="table-container">
+            <table id="myTable" class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Date</th>
+                        <th>Message</th>
+                        <th>User</th>
+                        <th>Ip Address</th>
+                        <th></th>
+                        <!-- Add more table headers as needed -->
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <!-- Table rows will be populated dynamically -->
+                </tbody>
+            </table>
+        </div>
+
+        <div id="pagination" class="text-center">
+            <!-- Pagination buttons will be added here -->
+        </div>
+    </div>
+
+    <!-- Bootstrap JS, Popper.js, and jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <!-- Your custom JavaScript -->
+    <script>
+        // Example data (replace this with your data source)
+        const logData = [{ items }];
+
+        // Function to display a specific page of data
+        function displayData(pageNumber, pageSize) {
+            const tableBody = document.getElementById('tableBody');
+            tableBody.innerHTML = '';
+
+            const startIndex = (pageNumber - 1) * pageSize;
+            const endIndex = startIndex + pageSize;
+            const paginatedData = logData.slice(startIndex, endIndex);
+
+            paginatedData.forEach(log => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+            <th scope="row">${log._id}</th>
+            <td>${log.date}</td>
+            <td>${log.message}</td>
+            <td>${parseInt(log.user_id)}</td>
+            <td>${log.ip_addr}</td>
+            <td><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" data-info="${log._id}|,|${log.message}|,|${log.details}">View</button></td>
+            <!-- Add more table data as needed -->
+            `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Pagination setup
+        const pageSize = 20; // Number of rows per page
+        const totalPages = Math.ceil(logData.length / pageSize);
+
+        function createPaginationButtons() {
+            const pagination = document.getElementById('pagination');
+
+            for (let i = 1; i <= totalPages; i++) {
+                const button = document.createElement('button');
+                button.textContent = i;
+                button.classList.add('btn', 'btn-outline-primary', 'mx-1');
+                button.onclick = function () {
+                    displayData(i, pageSize);
+                };
+                pagination.appendChild(button);
+            }
+        }
+
+        $(document).ready(function () {
+            $('button[data-toggle="modal"]').click(function () {
+                var rowData = $(this).attr('data-info').split('|,|');
+                $('#Id').text(rowData[0]);
+                $('#message').text(rowData[1]);
+                $('#details').text(rowData[2]);
+                // Add more assignments for additional details
+            });
+        });
+        $('#loadingModal').on('shown.bs.modal', function () {
+            setTimeout(function () {
+                $('#loadingModal').modal('hide');
+            }, 1200000); // Hide the modal after 20 Min (simulating some task completion)
+        });
+        function export_excel() {
+            // When the button is clicked, send an AJAX request to the server
+            $('#loadingModal').modal('show');
+            var url = set_newUrl(true)
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', url, true);
+            xhr.responseType = 'blob'; // Expecting a binary response
+
+            xhr.onload = function () {
+                if (this.status === 200) {
+                    // Create a URL to the file blob and initiate download
+                    var blob = new Blob([this.response], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                    var downloadUrl = URL.createObjectURL(blob);
+                    var a = document.createElement('a');
+                    a.href = downloadUrl;
+                    a.download = 'exported_data.xlsx';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    $('#loadingModal').modal('hide');
+                }
+            };
+            xhr.send();
+        };
+
+        function set_newUrl(excel = false) {
+            var sDb = document.getElementById('Database_id').value;
+            var sMessage = document.getElementById('searchMessage').value;
+            var sDetails = document.getElementById('searchDetails').value;
+            var sDateFrom = document.getElementById('searchDateFrom').value;
+            var sDateTo = document.getElementById('searchDateTo').value;
+            var searchText = ""
+            if (sDb) {
+                searchText += "db=" + sDb + "&"
+            }
+            if (sMessage) {
+                searchText += "message=" + sMessage + "&"
+            }
+            if (sDetails) {
+                searchText += "details=" + sDetails + "&"
+            }
+            if (sDateFrom) {
+                searchText += "date_from=" + sDateFrom + "&"
+            }
+            if (sDateTo) {
+                searchText += "date_to=" + sDateTo + "&"
+            }
+            if (excel) {
+                var newURL = window.location.protocol + '//' + window.location.host + "/nf/v10/download_excel" + "?" + searchText;
+            } else {
+                var newURL = window.location.protocol + '//' + window.location.host + window.location.pathname + "?" + searchText;
+            }
+            return newURL
+        }
+        function changeURL() {
+            var sDb = document.getElementById('Database_id').value;
+            var sMessage = document.getElementById('searchMessage').value;
+            var sDetails = document.getElementById('searchDetails').value;
+            var sDateFrom = document.getElementById('searchDateFrom').value;
+            var sDateTo = document.getElementById('searchDateTo').value;
+            var searchText = ""
+            if (sDb) {
+                searchText += "db=" + sDb + "&"
+            }
+            if (sMessage) {
+                searchText += "message=" + sMessage + "&"
+            }
+            if (sDetails) {
+                searchText += "details=" + sDetails + "&"
+            }
+            if (sDateFrom) {
+                searchText += "date_from=" + sDateFrom + "&"
+            }
+            if (sDateTo) {
+                searchText += "date_to=" + sDateTo + "&"
+            }
+            window.location.href = set_newUrl(false);
+        }
+        function setDefault() {
+            // Get the URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            // Extract the value of the 'param' parameter
+            const default_db = urlParams.get('db');
+            const default_message = urlParams.get('message');
+            const default_details = urlParams.get('details');
+            const default_datefrom = urlParams.get('date_from');
+            const default_dateto = urlParams.get('date_to');
+            // Set the default value to the input field
+            document.getElementById('Database_id').value = default_db || '';
+            document.getElementById('searchMessage').value = default_message || '';
+            document.getElementById('searchDetails').value = default_details || '';
+            document.getElementById('searchDateFrom').value = default_datefrom || '';
+            document.getElementById('searchDateTo').value = default_dateto || '';
+        }
+        function backhome() {
+            var newURL = window.location.protocol + '//' + window.location.host + "{ UrlHome }";
+            window.location.href = newURL;
+        }
+        // Display initial data and pagination buttons
+        setDefault()
+        displayData(1, pageSize);
+        createPaginationButtons();
+    </script>
+
+</body>
+
+</html>
