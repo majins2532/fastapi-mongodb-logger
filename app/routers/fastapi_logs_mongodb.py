@@ -153,7 +153,7 @@ def download_excel(response: Response, db:str | None = None, message: str | None
     mdb = mdb_conn()
     mdb.connect(MDB_DATABASE)
     mdb.connect_table(db)
-    datas = mdb.find(query,20)
+    datas = mdb.find(query,200)
     res["_id"] = []
     res["date"] = []
     res["user_id"] = []
